@@ -1,0 +1,72 @@
+{
+  "name": "webtoon",
+  "version": "1.0.0",
+  "main": "src/main/main.js",
+  "scripts": {
+    "build": "vite build",
+    "react-start": "vite",
+    "electron-start": "electron .",
+    "start": "concurrently -k \"npm run react-start\" \"wait-on tcp:5173 && npm run electron-start\"",
+    "dist": "electron-builder"
+  },
+  "build": {
+    "appId": "self.doutze.webtoonreader",
+    "directories": {
+      "output": "dist"
+    },
+    "mac": {
+      "target": [
+        "dmg"
+      ],
+      "icon": "resources/kakao.icns"
+    },
+    "win": {
+      "target": [
+        "nsis"
+      ],
+      "icon": "resources/icon.ico"
+    },
+    "files": [
+      "src/**/*",
+      "src/main/**/*",
+      "src/main/ipc/**/*",
+      "src/renderer/**/*",
+      "src/components/**/*",
+      "src/hooks/**/*",
+      "dist/**/*",
+      "sources/**/*",
+      "index.html",
+      "package.json",
+      "vite.config.js"
+    ]
+  },
+  "extraResources": [
+    {
+      "from": "comics",
+      "to": "comics"
+    }
+  ],
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
+    "@mui/icons-material": "^6.4.7",
+    "@mui/material": "^6.4.7",
+    "express": "^4.21.2",
+    "fs-extra": "^11.3.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "use-debounce": "^10.0.4"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.4",
+    "concurrently": "^9.1.2",
+    "electron": "^35.0.0",
+    "electron-builder": "^25.1.8",
+    "vite": "^6.2.1",
+    "wait-on": "^8.0.2"
+  }
+}
