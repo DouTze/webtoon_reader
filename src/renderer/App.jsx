@@ -16,6 +16,7 @@ export default function App() {
   const [editMode, setEditMode] = useState(false);
   const [selectedComics, setSelectedComics] = useState([]);
   const [refreshComics, setRefreshComics] = useState(0);
+  const [refreshDrawer, setrefreshDrawer] = useState(1);
 
   const toggleMode = () => {
     setMode((prev) => (prev === 'light' ? 'dark' : 'light'));
@@ -64,6 +65,15 @@ export default function App() {
 
     // 刷新ComicShelf元件
     setRefreshComics(prev => prev + 1);
+    setrefreshDrawer(prev => prev + 1);
+  };
+
+  const handleImportComic = async () => {
+    await handleImport();
+
+    // 刷新ComicShelf元件
+    setRefreshComics(prev => prev + 1);
+    setrefreshDrawer(prev => prev + 1);
   };
 
   return (
@@ -110,15 +120,16 @@ export default function App() {
         </Slide>
 
         <DrawerPanel
+          key={refreshDrawer} // 使用key來強制刷新
           open={drawerOpen}
-          comics={comics}
           chapters={chapters}
           selectedComic={selectedComic}
           selectedChapter={selectedChapter}
           onClose={closeDrawer}
-          onImport={handleImport}
+          onImport={handleImportComic}
           onComicSelect={handleComicSelect}
           onChapterSelect={handleChapterSelect}
+          setRefreshComics={setRefreshComics}
         />
 
         {view === 'home' && (

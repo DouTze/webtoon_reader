@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Drawer, Box, Button, Typography, Divider, List, ListItemButton
 } from '@mui/material';
@@ -6,15 +6,23 @@ import { AddPhotoAlternate } from '@mui/icons-material';
 
 export default function DrawerPanel({
   open,
-  comics,
   chapters,
   selectedComic,
   selectedChapter,
   onClose,
   onImport,
   onComicSelect,
-  onChapterSelect
+  onChapterSelect,
 }) {
+  const [comics, setComics] = useState([]);
+
+  useEffect(() => {
+    (async () => {
+      const comicsData = await window.electron.invoke('get-comics-list');
+      setComics(comicsData);
+    })();
+  }, []);
+  
   return (
     <Drawer
       variant="temporary"
