@@ -26,3 +26,20 @@ ipcMain.handle('import-comic', async () => {
   await fsExtra.copy(sourceDir, destination);
   return { success: true, comicName };
 });
+
+// 🗑️ 移除指定漫畫資料夾
+ipcMain.handle('remove-comic', async (_, comicName) => {
+  const targetDir = path.join(comicsDir, comicName);
+
+  if (!fsExtra.existsSync(targetDir)) {
+    return { success: false, message: '漫畫不存在' };
+  }
+
+  try {
+    await fsExtra.remove(targetDir);
+    return { success: true, comicName };
+  } catch (error) {
+    return { success: false, message: error.message };
+  }
+});
+

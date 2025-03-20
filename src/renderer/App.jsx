@@ -1,6 +1,6 @@
 import React, { useState, useRef, useMemo } from 'react';
-import { ThemeProvider, createTheme, CssBaseline, IconButton } from '@mui/material';
-import { Brightness4, Brightness7 } from '@mui/icons-material';
+import { ThemeProvider, createTheme, CssBaseline, IconButton, Button } from '@mui/material';
+import { Brightness4, Brightness7, Delete, Edit } from '@mui/icons-material';
 import useScrollTrigger from '@mui/material/useScrollTrigger';
 import ComicShelf from '../components/ComicShelf';
 import ChapterShelf from '../components/ChapterShelf';
@@ -13,6 +13,9 @@ import { Menu, Home } from '@mui/icons-material';
 export default function App() {
   const containerRef = useRef(null);
   const [mode, setMode] = useState('dark');
+  const [editMode, setEditMode] = useState(false);
+  const [selectedComics, setSelectedComics] = useState([]);
+  const [refreshComics, setRefreshComics] = useState(0);
 
   const toggleMode = () => {
     setMode((prev) => (prev === 'light' ? 'dark' : 'light'));
@@ -36,7 +39,6 @@ export default function App() {
     view,
     isLoading,
     hasMore,
-    currentChapterIndex,
     handleImport,
     handleComicSelect,
     handleChapterSelect,
@@ -47,6 +49,22 @@ export default function App() {
     closeDrawer,
     setView,
   } = useComicManager(containerRef);
+
+  const toggleEditMode = () => {
+    setEditMode(prev => !prev);
+    setSelectedComics([]);
+  };
+
+  const handleRemoveSelected = async () => {
+    if (selectedComics.length === 0) return;
+
+    await Promise.all(selectedComics.map(comic => window.electron.invoke('remove-comic', comic)));
+    setSelectedComics([]);
+    setEditMode(false);
+
+    // 刷新ComicShelf元件
+    setRefreshComics(prev => prev + 1);
+  };
 
   return (
     <ThemeProvider theme={theme}>
@@ -66,6 +84,20 @@ export default function App() {
               )}
 
               <Box>
+                {view === 'home' && (
+                  <>
+                    <IconButton color={editMode ? "primary" : "inherit"} onClick={toggleEditMode}>
+                      <Edit />
+                    </IconButton>
+                    <IconButton
+                      color="error"
+                      disabled={selectedComics.length === 0}
+                      onClick={handleRemoveSelected}
+                    >
+                      <Delete />
+                    </IconButton>
+                  </>
+                )}
                 <IconButton onClick={toggleMode} color="inherit">
                   {mode === 'light' ? <Brightness4 /> : <Brightness7 />}
                 </IconButton>
@@ -89,7 +121,16 @@ export default function App() {
           onChapterSelect={handleChapterSelect}
         />
 
-        {view === 'home' && <ComicShelf setView={() => { }} selectComic={handleComicSelect} />}
+        {view === 'home' && (
+          <ComicShelf
+            key={refreshComics} // 使用key來強制刷新
+            setView={() => { }}
+            selectComic={handleComicSelect}
+            editMode={editMode}
+            selectedComics={selectedComics}
+            setSelectedComics={setSelectedComics}
+          />
+        )}
         {view === 'chapters' && <ChapterShelf setView={setView} comic={selectedComic} onSelectChapter={handleChapterSelect} />}
         {view === 'reader' && (
           <ReaderView
